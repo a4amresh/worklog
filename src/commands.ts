@@ -21,6 +21,17 @@ export interface EditEntryArgs {
   tags?: string;
 }
 
+interface TaskFields {
+  title: string;
+  summary: string;
+  timeMinutes: number;
+  tags: string;
+}
+
+interface TreeTaskItem extends vscode.TreeItem {
+  task?: Task;
+}
+
 export function registerCommands(
   storeReady: Promise<WorklogStoreHandle>
 ): vscode.Disposable[] {
@@ -144,7 +155,7 @@ function parseDays(days: unknown): number {
   if (days === undefined) {
     return 7;
   }
-  const parsed = typeof days === 'string' ? Number(days) : Number(days);
+  const parsed = Number(days);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 7;
 }
 
@@ -165,56 +176,6 @@ function parseJsonArg<T>(args: unknown): T {
   throw new Error(`Expected an arguments object or JSON string, got ${typeof args}`);
 }
 
-function parseEditEntryArgs(args: unknown): EditEntryArgs | undefined {
-  if (args === undefined || args === null) {
-    return undefined;
-  }
-  const parsed = parseJsonArg<Partial<EditEntryArgs>>(args);
-  if (typeof parsed.id !== 'number' || !Number.isInteger(parsed.id) || parsed.id <= 0) {
-    return undefined;
-  }
-  const editArgs: EditEntryArgs = { id: parsed.id };
-  if (parsed.title !== undefined) {
-    if (typeof parsed.title !== 'string' || parsed.title.trim().length === 0) {
-      throw new Error('worklog.editEntry "title" must be a non-empty string');
-    }
-    editArgs.title = parsed.title.trim();
-  }
-  if (parsed.summary !== undefined) {
-    if (typeof parsed.summary !== 'string') {
-      throw new Error('worklog.editEntry "summary" must be a string');
-    }
-    editArgs.summary = parsed.summary.trim();
-  }
-  if (parsed.timeMinutes !== undefined) {
-    if (!Number.isInteger(parsed.timeMinutes) || parsed.timeMinutes < 0) {
-      throw new Error('worklog.editEntry "timeMinutes" must be a non-negative integer');
-    }
-    editArgs.timeMinutes = parsed.timeMinutes;
-  }
-  if (parsed.tags !== undefined) {
-    if (typeof parsed.tags !== 'string') {
-      throw new Error('worklog.editEntry "tags" must be a string');
-    }
-    editArgs.tags = parsed.tags.trim();
-  }
-  return editArgs;
-}
-
-function parseDeleteArgs(args: unknown): number | undefined {
-  if (args === undefined || args === null) {
-    return undefined;
-  }
-  const parsed = parseJsonArg<{ id?: number } | number>(args);
-  if (typeof parsed === 'number') {
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
-  }
-  if (typeof parsed === 'object' && typeof parsed.id === 'number') {
-    return Number.isInteger(parsed.id) && parsed.id > 0 ? parsed.id : undefined;
-  }
-  return undefined;
-}
-
 function hasTitle(args: unknown): boolean {
   let value = args;
   if (typeof value === 'string') {
@@ -233,26 +194,82 @@ function hasTitle(args: unknown): boolean {
 
 function parseAddEntryArgs(args: unknown): AddEntryArgs {
   const parsed = parseJsonArg<AddEntryArgs>(args);
-  if (typeof parsed.title !== 'string' || parsed.title.trim().length === 0) {
-    throw new Error('worklog.addEntry requires a non-empty string "title"');
-  }
-  if (parsed.summary !== undefined && typeof parsed.summary !== 'string') {
-    throw new Error('worklog.addEntry "summary" must be a string');
-  }
-  if (parsed.timeMinutes !== undefined && (!Number.isInteger(parsed.timeMinutes) || parsed.timeMinutes < 0)) {
-    throw new Error('worklog.addEntry "timeMinutes" must be a non-negative integer');
-  }
-  if (parsed.tags !== undefined && typeof parsed.tags !== 'string') {
-    throw new Error('worklog.addEntry "tags" must be a string');
-  }
+  validateTaskFields(parsed, 'worklog.addEntry');
   return parsed;
 }
 
-interface TaskFields {
-  title: string;
-  summary: string;
-  timeMinutes: number;
-  tags: string;
+function parseEditEntryArgs(args: unknown): EditEntryArgs | undefined {
+  if (args === undefined || args === null) {
+    return undefined;
+  }
+  const parsed = parseJsonArg<Partial<EditEntryArgs>>(args);
+  if (typeof parsed.id !== 'number' || !Number.isInteger(parsed.id) || parsed.id <= 0) {
+    return undefined;
+  }
+  const editArgs: EditEntryArgs = { id: parsed.id };
+  if (parsed.title !== undefined) {
+    editArgs.title = validateTitle(parsed.title, 'worklog.editEntry');
+  }
+  if (parsed.summary !== undefined) {
+    editArgs.summary = validateString(parsed.summary, 'worklog.editEntry', 'summary');
+  }
+  if (parsed.timeMinutes !== undefined) {
+    editArgs.timeMinutes = validateTimeMinutes(parsed.timeMinutes, 'worklog.editEntry');
+  }
+  if (parsed.tags !== undefined) {
+    editArgs.tags = validateString(parsed.tags, 'worklog.editEntry', 'tags');
+  }
+  return editArgs;
+}
+
+function parseDeleteArgs(args: unknown): number | undefined {
+  if (args === undefined || args === null) {
+    return undefined;
+  }
+  const parsed = parseJsonArg<{ id?: number } | number>(args);
+  if (typeof parsed === 'number') {
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+  }
+  if (typeof parsed === 'object' && typeof parsed.id === 'number') {
+    return Number.isInteger(parsed.id) && parsed.id > 0 ? parsed.id : undefined;
+  }
+  return undefined;
+}
+
+function validateTaskFields(args: Partial<TaskFields>, command: string): void {
+  if (typeof args.title !== 'string' || args.title.trim().length === 0) {
+    throw new Error(`${command} requires a non-empty string "title"`);
+  }
+  if (args.summary !== undefined && typeof args.summary !== 'string') {
+    throw new Error(`${command} "summary" must be a string`);
+  }
+  if (args.timeMinutes !== undefined && (!Number.isInteger(args.timeMinutes) || args.timeMinutes < 0)) {
+    throw new Error(`${command} "timeMinutes" must be a non-negative integer`);
+  }
+  if (args.tags !== undefined && typeof args.tags !== 'string') {
+    throw new Error(`${command} "tags" must be a string`);
+  }
+}
+
+function validateTitle(value: unknown, command: string): string {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error(`${command} "title" must be a non-empty string`);
+  }
+  return value.trim();
+}
+
+function validateString(value: unknown, command: string, field: string): string {
+  if (typeof value !== 'string') {
+    throw new Error(`${command} "${field}" must be a string`);
+  }
+  return value.trim();
+}
+
+function validateTimeMinutes(value: unknown, command: string): number {
+  if (!Number.isInteger(value) || (value as number) < 0) {
+    throw new Error(`${command} "timeMinutes" must be a non-negative integer`);
+  }
+  return value as number;
 }
 
 async function promptTaskFields(defaults?: Partial<TaskFields>): Promise<TaskFields | undefined> {
@@ -311,8 +328,4 @@ async function taskFromItem(item: vscode.TreeItem | undefined, store: WorklogSto
     { placeHolder: 'Select a worklog entry' }
   );
   return pick?.task;
-}
-
-interface TreeTaskItem extends vscode.TreeItem {
-  task?: Task;
 }
