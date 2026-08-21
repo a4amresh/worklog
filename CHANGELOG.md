@@ -2,7 +2,15 @@
 
 ## [0.1.0]
 
-- Initial release
-- Add, complete, reopen, and delete tasks
-- Activity Bar tree view
-- Local SQLite storage with `better-sqlite3`
+### Added
+
+- Add, edit, delete, and list worklog entries.
+- Daily summaries with total minutes and entry counts.
+- Activity Bar tree view grouped by Today, Yesterday, and date.
+- Inline edit/delete actions in the tree view.
+- Local SQLite storage using `sql.js` (pure JavaScript, no native bindings).
+- Workspace-scoped database defaulting to `.vscode/worklog.db`.
+- Configurable database path via `worklog.databasePath` setting.
+- Programmatic commands for AI assistants (`worklog.addEntry`, `worklog.getEntries`, `worklog.getTodaySummary`, `worklog.getSummary`, `worklog.editEntry`, `worklog.deleteEntry`).
+- Support for JSON-string or object arguments from AI command bridges.
+- Export entries and daily summaries to JSON or CSV.
