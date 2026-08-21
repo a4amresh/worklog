@@ -77,6 +77,13 @@ await vscode.commands.executeCommand('worklog.editEntry', {
 await vscode.commands.executeCommand('worklog.deleteEntry', { id: entry.id });
 // or
 await vscode.commands.executeCommand('worklog.deleteEntry', entry.id);
+
+// Export all entries to JSON or CSV (path optional; opens save dialog if omitted)
+await vscode.commands.executeCommand('worklog.exportEntries', { format: 'json', path: '/tmp/worklog.json' });
+await vscode.commands.executeCommand('worklog.exportEntries', { format: 'csv' });
+
+// Export daily summary to JSON or CSV
+await vscode.commands.executeCommand('worklog.exportSummary', { format: 'csv', days: 30 });
 ```
 
 ## Packaging

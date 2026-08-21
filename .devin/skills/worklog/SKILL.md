@@ -83,6 +83,14 @@ await vscode.commands.executeCommand('worklog.deleteEntry', { id: 1 });
 await vscode.commands.executeCommand('worklog.deleteEntry', 1);
 ```
 
+## How to export data
+
+- `worklog.exportEntries({ format: 'json', path: '/path/to/file.json' })` — exports all entries as JSON.
+- `worklog.exportEntries({ format: 'csv' })` — opens a save dialog and exports entries as CSV.
+- `worklog.exportSummary({ format: 'csv', days: 30 })` — exports daily summaries for the last 30 days.
+
+If `path` is omitted, the command opens a save dialog.
+
 ## Guidelines
 
 - Add entries after completing a discrete chunk of work, not before.

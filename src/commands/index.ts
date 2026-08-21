@@ -7,6 +7,8 @@ import { registerGetEntriesCommand } from './getEntries';
 import { registerGetTodaySummaryCommand } from './getTodaySummary';
 import { registerGetSummaryCommand } from './getSummary';
 import { registerRefreshCommand } from './refresh';
+import { registerExportEntriesCommand } from './exportEntries';
+import { registerExportSummaryCommand } from './exportSummary';
 
 export { AddEntryArgs, EditEntryArgs } from './argParsers';
 
@@ -18,6 +20,8 @@ export function registerCommands(storeReady: Promise<WorklogStoreHandle>): vscod
     registerGetEntriesCommand(storeReady),
     registerGetTodaySummaryCommand(storeReady),
     registerGetSummaryCommand(storeReady),
+    registerExportEntriesCommand(storeReady),
+    registerExportSummaryCommand(storeReady),
     registerRefreshCommand(storeReady),
   ];
 }

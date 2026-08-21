@@ -56,6 +56,14 @@
         "command": "worklog.refresh",
         "title": "Refresh Worklog",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "worklog.exportEntries",
+        "title": "Export Worklog Entries"
+      },
+      {
+        "command": "worklog.exportSummary",
+        "title": "Export Worklog Summary"
       }
     ],
     "views": {
