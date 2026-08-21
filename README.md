@@ -65,6 +65,18 @@ const today = await vscode.commands.executeCommand('worklog.getTodaySummary');
 
 // Get daily summaries for the last 7 days
 const summary = await vscode.commands.executeCommand('worklog.getSummary', 7);
+
+// Update an entry by id
+await vscode.commands.executeCommand('worklog.editEntry', {
+  id: entry.id,
+  title: 'Refactor auth service and add tests',
+  timeMinutes: 60
+});
+
+// Delete an entry by id
+await vscode.commands.executeCommand('worklog.deleteEntry', { id: entry.id });
+// or
+await vscode.commands.executeCommand('worklog.deleteEntry', entry.id);
 ```
 
 ## Packaging

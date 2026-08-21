@@ -13,6 +13,14 @@ export interface AddEntryArgs {
   tags?: string;
 }
 
+export interface EditEntryArgs {
+  id: number;
+  title?: string;
+  summary?: string;
+  timeMinutes?: number;
+  tags?: string;
+}
+
 export function registerCommands(
   storeReady: Promise<WorklogStoreHandle>
 ): vscode.Disposable[] {
@@ -34,10 +42,16 @@ export function registerCommands(
       return addEntryFromArgs(handle, fields);
     }),
 
-    vscode.commands.registerCommand('worklog.editEntry', async (item: vscode.TreeItem) => {
+    vscode.commands.registerCommand('worklog.editEntry', async (args?: unknown) => {
       try {
         const handle = await getHandle();
-        const task = await taskFromItem(item, handle.store);
+        const editArgs = parseEditEntryArgs(args);
+        if (editArgs) {
+          handle.store.updateTask(editArgs.id, editArgs);
+          handle.treeProvider.refresh();
+          return;
+        }
+        const task = await taskFromItem(args as vscode.TreeItem | undefined, handle.store);
         if (!task) {
           return;
         }
@@ -58,10 +72,16 @@ export function registerCommands(
       }
     }),
 
-    vscode.commands.registerCommand('worklog.deleteEntry', async (item: vscode.TreeItem) => {
+    vscode.commands.registerCommand('worklog.deleteEntry', async (args?: unknown) => {
       try {
         const handle = await getHandle();
-        const task = await taskFromItem(item, handle.store);
+        const id = parseDeleteArgs(args);
+        if (id !== undefined) {
+          handle.store.deleteTask(id);
+          handle.treeProvider.refresh();
+          return;
+        }
+        const task = await taskFromItem(args as vscode.TreeItem | undefined, handle.store);
         if (!task) {
           return;
         }
@@ -143,6 +163,56 @@ function parseJsonArg<T>(args: unknown): T {
     }
   }
   throw new Error(`Expected an arguments object or JSON string, got ${typeof args}`);
+}
+
+function parseEditEntryArgs(args: unknown): EditEntryArgs | undefined {
+  if (args === undefined || args === null) {
+    return undefined;
+  }
+  const parsed = parseJsonArg<Partial<EditEntryArgs>>(args);
+  if (typeof parsed.id !== 'number' || !Number.isInteger(parsed.id) || parsed.id <= 0) {
+    return undefined;
+  }
+  const editArgs: EditEntryArgs = { id: parsed.id };
+  if (parsed.title !== undefined) {
+    if (typeof parsed.title !== 'string' || parsed.title.trim().length === 0) {
+      throw new Error('worklog.editEntry "title" must be a non-empty string');
+    }
+    editArgs.title = parsed.title.trim();
+  }
+  if (parsed.summary !== undefined) {
+    if (typeof parsed.summary !== 'string') {
+      throw new Error('worklog.editEntry "summary" must be a string');
+    }
+    editArgs.summary = parsed.summary.trim();
+  }
+  if (parsed.timeMinutes !== undefined) {
+    if (!Number.isInteger(parsed.timeMinutes) || parsed.timeMinutes < 0) {
+      throw new Error('worklog.editEntry "timeMinutes" must be a non-negative integer');
+    }
+    editArgs.timeMinutes = parsed.timeMinutes;
+  }
+  if (parsed.tags !== undefined) {
+    if (typeof parsed.tags !== 'string') {
+      throw new Error('worklog.editEntry "tags" must be a string');
+    }
+    editArgs.tags = parsed.tags.trim();
+  }
+  return editArgs;
+}
+
+function parseDeleteArgs(args: unknown): number | undefined {
+  if (args === undefined || args === null) {
+    return undefined;
+  }
+  const parsed = parseJsonArg<{ id?: number } | number>(args);
+  if (typeof parsed === 'number') {
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+  }
+  if (typeof parsed === 'object' && typeof parsed.id === 'number') {
+    return Number.isInteger(parsed.id) && parsed.id > 0 ? parsed.id : undefined;
+  }
+  return undefined;
 }
 
 function hasTitle(args: unknown): boolean {

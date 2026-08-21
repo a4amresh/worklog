@@ -61,6 +61,28 @@ await vscode.commands.executeCommand('worklog.addEntry', {
 - `worklog.getTodaySummary` — returns today's total minutes and entry count.
 - `worklog.getSummary(days)` — returns daily summaries for the last N days.
 
+## How to update or delete an entry
+
+Use `worklog.editEntry` with the entry `id` and the fields to change:
+
+```js
+await vscode.commands.executeCommand('worklog.editEntry', {
+  id: 1,
+  title: 'Updated title',
+  summary: 'Updated summary',
+  timeMinutes: 60,
+  tags: 'refactor,auth'
+});
+```
+
+Use `worklog.deleteEntry` with the entry `id`:
+
+```js
+await vscode.commands.executeCommand('worklog.deleteEntry', { id: 1 });
+// or
+await vscode.commands.executeCommand('worklog.deleteEntry', 1);
+```
+
 ## Guidelines
 
 - Add entries after completing a discrete chunk of work, not before.
