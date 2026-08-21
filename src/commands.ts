@@ -24,7 +24,7 @@ export function registerCommands(
   return [
     vscode.commands.registerCommand('worklog.addEntry', async (args?: unknown) => {
       const handle = await getHandle();
-      if (args !== undefined) {
+      if (isAddEntryPayload(args)) {
         return addEntryFromArgs(handle, parseAddEntryArgs(args));
       }
       const fields = await promptTaskFields();
@@ -138,6 +138,22 @@ function parseAiArgs<T>(args: unknown): T {
     }
   }
   throw new Error(`Expected an arguments object or JSON string, got ${typeof args}`);
+}
+
+function isAddEntryPayload(args: unknown): args is AddEntryArgs | string {
+  if (typeof args === 'string') {
+    try {
+      const parsed = JSON.parse(args);
+      return parsed && typeof parsed === 'object' && typeof parsed.title === 'string' && parsed.title.trim().length > 0;
+    } catch {
+      return false;
+    }
+  }
+  if (!args || typeof args !== 'object') {
+    return false;
+  }
+  const a = args as Record<string, unknown>;
+  return typeof a.title === 'string' && a.title.trim().length > 0;
 }
 
 function parseAddEntryArgs(args: unknown): AddEntryArgs {
