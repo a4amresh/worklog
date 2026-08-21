@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { WorklogStoreHandle } from '../storeHandle';
-import { parseJsonArg } from './commandUtils';
+import { parseJsonArg } from './argParsers';
 
 export function registerGetEntriesCommand(storeReady: Promise<WorklogStoreHandle>): vscode.Disposable {
   return vscode.commands.registerCommand('worklog.getEntries', async (filter?: unknown) => {

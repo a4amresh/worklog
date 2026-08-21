@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { logError } from '../logger';
 import type { WorklogStoreHandle } from '../storeHandle';
-import { parseEditEntryArgs, promptTaskFields, taskFromItem } from './commandUtils';
+import { parseEditEntryArgs } from './argParsers';
+import { promptTaskFields, taskFromItem } from './commandUtils';
 
 export function registerEditEntryCommand(storeReady: Promise<WorklogStoreHandle>): vscode.Disposable {
   return vscode.commands.registerCommand('worklog.editEntry', async (args?: unknown) => {

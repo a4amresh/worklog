@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import { log } from '../logger';
 import type { WorklogStoreHandle } from '../storeHandle';
 import type { Task } from '../types';
-import { hasTitle, parseAddEntryArgs, promptTaskFields } from './commandUtils';
+import { hasTitle, parseAddEntryArgs } from './argParsers';
+import { promptTaskFields } from './commandUtils';
 
 export function registerAddEntryCommand(storeReady: Promise<WorklogStoreHandle>): vscode.Disposable {
   return vscode.commands.registerCommand('worklog.addEntry', async (args?: unknown) => {

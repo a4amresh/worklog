@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { logError } from '../logger';
 import type { WorklogStoreHandle } from '../storeHandle';
-import { parseDeleteArgs, taskFromItem } from './commandUtils';
+import { parseDeleteArgs } from './argParsers';
+import { taskFromItem } from './commandUtils';
 
 export function registerDeleteEntryCommand(storeReady: Promise<WorklogStoreHandle>): vscode.Disposable {
   return vscode.commands.registerCommand('worklog.deleteEntry', async (args?: unknown) => {

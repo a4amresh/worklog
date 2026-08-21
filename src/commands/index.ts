@@ -8,7 +8,7 @@ import { registerGetTodaySummaryCommand } from './getTodaySummary';
 import { registerGetSummaryCommand } from './getSummary';
 import { registerRefreshCommand } from './refresh';
 
-export { AddEntryArgs, EditEntryArgs } from './commandUtils';
+export { AddEntryArgs, EditEntryArgs } from './argParsers';
 
 export function registerCommands(storeReady: Promise<WorklogStoreHandle>): vscode.Disposable[] {
   return [
