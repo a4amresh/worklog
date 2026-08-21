@@ -24,7 +24,7 @@ export function registerCommands(
   return [
     vscode.commands.registerCommand('worklog.addEntry', async (args?: unknown) => {
       const handle = await getHandle();
-      if (isAddEntryPayload(args)) {
+      if (hasTitle(args)) {
         return addEntryFromArgs(handle, parseAddEntryArgs(args));
       }
       const fields = await promptTaskFields();
@@ -35,45 +35,50 @@ export function registerCommands(
     }),
 
     vscode.commands.registerCommand('worklog.editEntry', async (item: vscode.TreeItem) => {
-      const handle = await getHandle();
-      const task = await taskFromItem(item, handle.store);
-      if (!task) {
-        return;
+      try {
+        const handle = await getHandle();
+        const task = await taskFromItem(item, handle.store);
+        if (!task) {
+          return;
+        }
+        const fields = await promptTaskFields({
+          title: task.title,
+          summary: task.summary,
+          timeMinutes: task.timeMinutes,
+          tags: task.tags,
+        });
+        if (!fields) {
+          return;
+        }
+        handle.store.updateTask(task.id, fields);
+        handle.treeProvider.refresh();
+      } catch (err) {
+        logError('worklog.editEntry failed', err);
+        throw err;
       }
-      const fields = await promptTaskFields({
-        title: task.title,
-        summary: task.summary,
-        timeMinutes: task.timeMinutes,
-        tags: task.tags,
-      });
-      if (!fields) {
-        return;
-      }
-      handle.store.updateTask(task.id, {
-        title: fields.title,
-        summary: fields.summary,
-        timeMinutes: fields.timeMinutes,
-        tags: fields.tags,
-      });
-      handle.treeProvider.refresh();
     }),
 
     vscode.commands.registerCommand('worklog.deleteEntry', async (item: vscode.TreeItem) => {
-      const handle = await getHandle();
-      const task = await taskFromItem(item, handle.store);
-      if (!task) {
-        return;
+      try {
+        const handle = await getHandle();
+        const task = await taskFromItem(item, handle.store);
+        if (!task) {
+          return;
+        }
+        const confirmed = await vscode.window.showWarningMessage(
+          `Delete "${task.title}"?`,
+          { modal: true },
+          'Delete'
+        );
+        if (confirmed !== 'Delete') {
+          return;
+        }
+        handle.store.deleteTask(task.id);
+        handle.treeProvider.refresh();
+      } catch (err) {
+        logError('worklog.deleteEntry failed', err);
+        throw err;
       }
-      const confirmed = await vscode.window.showWarningMessage(
-        `Delete "${task.title}"?`,
-        { modal: true },
-        'Delete'
-      );
-      if (confirmed !== 'Delete') {
-        return;
-      }
-      handle.store.deleteTask(task.id);
-      handle.treeProvider.refresh();
     }),
 
     vscode.commands.registerCommand('worklog.getEntries', async (filter?: unknown) => {
@@ -119,8 +124,8 @@ function parseDays(days: unknown): number {
   if (days === undefined) {
     return 7;
   }
-  const parsed = typeof days === 'string' ? Number(days) : days;
-  return Number.isInteger(parsed) && (parsed as number) > 0 ? (parsed as number) : 7;
+  const parsed = typeof days === 'string' ? Number(days) : Number(days);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 7;
 }
 
 function parseJsonArg<T>(args: unknown): T {
@@ -140,20 +145,20 @@ function parseJsonArg<T>(args: unknown): T {
   throw new Error(`Expected an arguments object or JSON string, got ${typeof args}`);
 }
 
-function isAddEntryPayload(args: unknown): args is AddEntryArgs | string {
-  if (typeof args === 'string') {
+function hasTitle(args: unknown): boolean {
+  let value = args;
+  if (typeof value === 'string') {
     try {
-      const parsed = JSON.parse(args);
-      return parsed && typeof parsed === 'object' && typeof parsed.title === 'string' && parsed.title.trim().length > 0;
+      value = JSON.parse(value);
     } catch {
       return false;
     }
   }
-  if (!args || typeof args !== 'object') {
+  if (!value || typeof value !== 'object') {
     return false;
   }
-  const a = args as Record<string, unknown>;
-  return typeof a.title === 'string' && a.title.trim().length > 0;
+  const record = value as Record<string, unknown>;
+  return typeof record.title === 'string' && record.title.trim().length > 0;
 }
 
 function parseAddEntryArgs(args: unknown): AddEntryArgs {
@@ -221,7 +226,7 @@ interface TaskQuickPickItem extends vscode.QuickPickItem {
 }
 
 async function taskFromItem(item: vscode.TreeItem | undefined, store: WorklogStore): Promise<Task | undefined> {
-  const taskItem = item as { task?: Task } | undefined;
+  const taskItem = item as TreeTaskItem | undefined;
   if (taskItem?.task) {
     return taskItem.task;
   }
@@ -236,4 +241,8 @@ async function taskFromItem(item: vscode.TreeItem | undefined, store: WorklogSto
     { placeHolder: 'Select a worklog entry' }
   );
   return pick?.task;
+}
+
+interface TreeTaskItem extends vscode.TreeItem {
+  task?: Task;
 }
