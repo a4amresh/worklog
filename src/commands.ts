@@ -81,7 +81,7 @@ export function registerCommands(
       if (!filter) {
         return store.listTasks();
       }
-      return store.listTasks(parseAiArgs<{ tag?: string; date?: string }>(filter));
+      return store.listTasks(parseJsonArg<{ tag?: string; date?: string }>(filter));
     }),
 
     vscode.commands.registerCommand('worklog.getTodaySummary', async () => {
@@ -123,7 +123,7 @@ function parseDays(days: unknown): number {
   return Number.isInteger(parsed) && (parsed as number) > 0 ? (parsed as number) : 7;
 }
 
-function parseAiArgs<T>(args: unknown): T {
+function parseJsonArg<T>(args: unknown): T {
   if (args && typeof args === 'object') {
     return args as T;
   }
@@ -157,7 +157,7 @@ function isAddEntryPayload(args: unknown): args is AddEntryArgs | string {
 }
 
 function parseAddEntryArgs(args: unknown): AddEntryArgs {
-  const parsed = parseAiArgs<AddEntryArgs>(args);
+  const parsed = parseJsonArg<AddEntryArgs>(args);
   if (typeof parsed.title !== 'string' || parsed.title.trim().length === 0) {
     throw new Error('worklog.addEntry requires a non-empty string "title"');
   }
