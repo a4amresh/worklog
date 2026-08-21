@@ -1,0 +1,136 @@
+{
+  "name": "worklog",
+  "displayName": "Worklog",
+  "description": "Local-first task management and lightweight work history inside VS Code",
+  "version": "0.1.0",
+  "publisher": "your-publisher-name",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-publisher-name/worklog.git"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "worklog",
+    "worklog entry",
+    "time tracking",
+    "task log",
+    "ai assistant"
+  ],
+  "license": "MIT",
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "worklog.addEntry",
+        "title": "Add Worklog Entry",
+        "icon": "$(add)"
+      },
+      {
+        "command": "worklog.editEntry",
+        "title": "Edit Worklog Entry",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "worklog.deleteEntry",
+        "title": "Delete Worklog Entry",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "worklog.getEntries",
+        "title": "Get Worklog Entries"
+      },
+      {
+        "command": "worklog.getTodaySummary",
+        "title": "Get Today Summary"
+      },
+      {
+        "command": "worklog.getSummary",
+        "title": "Get Worklog Summary"
+      },
+      {
+        "command": "worklog.refresh",
+        "title": "Refresh Worklog",
+        "icon": "$(refresh)"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "worklog",
+          "name": "Worklog",
+          "when": "true"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "worklog.addEntry",
+          "when": "view == worklog",
+          "group": "navigation@1"
+        },
+        {
+          "command": "worklog.refresh",
+          "when": "view == worklog",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "worklog.editEntry",
+          "when": "view == worklog && viewItem == task",
+          "group": "inline"
+        },
+        {
+          "command": "worklog.deleteEntry",
+          "when": "view == worklog && viewItem == task",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Worklog",
+      "properties": {
+        "worklog.databasePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the SQLite database. Leave empty to use .vscode/worklog.db in the workspace."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run esbuild-base -- --production",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "esbuild-base": "node ./esbuild.js",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "lint": "eslint src --ext ts",
+    "test": "npm run compile && mocha --ui tdd out/test/suite/*.test.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/sql.js": "^1.4.9",
+    "@types/vscode": "^1.90.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^8.57.0",
+    "glob": "^11.0.0",
+    "mocha": "^10.8.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "sql.js": "^1.12.0"
+  }
+}
