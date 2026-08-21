@@ -3,10 +3,10 @@
   "displayName": "Worklog",
   "description": "Local-first task management and lightweight work history inside VS Code",
   "version": "0.1.0",
-  "publisher": "your-publisher-name",
+  "publisher": "a4amresh",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-publisher-name/worklog.git"
+    "url": "https://github.com/a4amresh/worklog.git"
   },
   "engines": {
     "vscode": "^1.90.0"

@@ -1,6 +1,6 @@
 # Worklog
 
-Worklog is a local-first VS Code extension for tracking development work. It is installed in the current workspace under the extension ID `your-publisher-name.worklog`.
+Worklog is a local-first VS Code extension for tracking development work. It is installed in the current workspace under the extension ID `a4amresh.worklog`.
 
 ## When to use
 
