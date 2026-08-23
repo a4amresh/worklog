@@ -67,7 +67,7 @@ class TaskTreeItem extends vscode.TreeItem {
 
 function groupTasksByDate(tasks: Task[]): Record<string, Task[]> {
   return tasks.reduce((groups, task) => {
-    const date = task.createdAt.split('T')[0].split(' ')[0];
+    const date = task.createdAt.split(' ')[0];
     groups[date] = groups[date] || [];
     groups[date].push(task);
     return groups;

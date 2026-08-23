@@ -30,6 +30,7 @@ Call the VS Code command ID `worklog.addEntry` with a JSON argument object:
   "title": "Short title of the work",
   "summary": "Optional longer description",
   "actualMinutes": 30,
+  "estimatedMinutes": 20,
   "tags": "comma,separated,tags"
 }
 ```
@@ -98,5 +99,5 @@ If `path` is omitted, the command opens a save dialog.
 - Add entries after completing a discrete chunk of work, not before.
 - Keep titles short and specific.
 - Use tags consistently (e.g., `bugfix`, `feature`, `refactor`, `docs`, `tests`).
-- Record `actualMinutes` honestly; partial minutes are fine.
+- Record `actualMinutes` honestly; values must be whole numbers.
 - Do not delete entries unless they were created by mistake.
