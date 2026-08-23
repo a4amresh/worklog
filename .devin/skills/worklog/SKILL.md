@@ -40,9 +40,14 @@ Required fields:
 
 Optional fields:
 - `summary` (string)
-- `actualMinutes` (non-negative integer) — actual time spent
-- `estimatedMinutes` (non-negative integer) — estimated/planned time
+- `actualMinutes` (non-negative integer) — actual time spent; defaults to `0`
+- `estimatedMinutes` (non-negative integer) — estimated/planned time; defaults to `0`
 - `tags` (string, comma-separated)
+
+All minute values must be whole numbers (`0`, `15`, `60`, etc.).
+
+If your command bridge sends arguments as a JSON string instead of an object,
+Worklog parses it automatically.
 
 Example invocation from an agent:
 
@@ -62,7 +67,7 @@ await vscode.commands.executeCommand('worklog.addEntry', {
 - `worklog.getEntries({ tag: 'auth' })` — filters by tag substring.
 - `worklog.getEntries({ date: '2026-08-22' })` — filters by local date.
 - `worklog.getTodaySummary` — returns today's total minutes and entry count.
-- `worklog.getSummary(days)` — returns daily summaries for the last N days.
+- `worklog.getSummary(days)` — returns daily summaries for the last N days; defaults to `7`.
 
 ## How to update or delete an entry
 
