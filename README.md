@@ -1,46 +1,51 @@
 # Worklog
 
-A local-first VS Code extension for managing tasks and keeping a lightweight
-history of development work directly inside your workspace.
+A local-first VS Code extension for keeping a lightweight history of development
+work directly inside your workspace.
 
 ## Features
 
-- **Local-first SQLite storage** — worklog entries live in `.vscode/worklog.db`
-  (or a path you configure) and travel with the project.
-- **Pure-JavaScript SQLite via `sql.js`** — no native bindings or rebuilds needed.
-- **Activity Bar tree view** — entries grouped by Today, Yesterday, and date.
+- **Local SQLite storage** — entries are stored in `.vscode/worklog.db` by
+  default, so your worklog travels with the project. No cloud or external service
+  required.
+- **Pure-JavaScript SQLite via `sql.js`** — no native bindings, no rebuilds,
+  works out of the box across VS Code versions.
+- **Activity Bar tree view** — entries grouped by Today, Yesterday, and earlier
+  dates.
 - **Inline actions** — edit and delete entries from the tree view.
-- **Daily summaries** — total time and entry count per day.
+- **Daily summaries** — total actual time and entry count per day.
+- **AI assistant friendly** — commands accept arguments programmatically, so
+  coding agents can add and read entries without opening UI prompts.
+- **Export** — dump entries or daily summaries to JSON or CSV.
 
 ## Requirements
 
 - VS Code 1.90+
-- Node.js 18+
+- Node.js 18+ (for development)
 
-## Getting Started
+## Installation
 
-```bash
-npm install
-npm run esbuild        # bundle extension JS into out/extension.js
-```
-
-## Running in VS Code
-
-Press `F5` (Run Extension) to open a new Extension Development Host window with
-Worklog loaded.
-
-## Tests
+Install from the VS Code Marketplace (search for **Worklog**) or install the
+`.vsix` manually:
 
 ```bash
-npm test
+code --install-extension worklog-0.1.0.vsix
 ```
+
+## Usage
+
+Open the **Worklog** panel in the Explorer sidebar. Click the **+** icon to add
+an entry, or right-click an existing entry to edit or delete it.
+
+When adding an entry you can record:
+
+- **Title** — short description of the work
+- **Summary** — optional longer notes
+- **Actual minutes** — time you actually spent
+- **Estimated minutes** — optional planned/estimated time
+- **Tags** — optional comma-separated labels
 
 ## AI Assistant Integration
-
-Worklog exposes commands that AI coding assistants can invoke directly from the
-VS Code extension host to read and write worklog entries.
-
-### Programmatic use by AI assistants
 
 The same commands that power the UI also accept arguments when invoked
 programmatically, so they never open prompts for AI assistants.
@@ -88,10 +93,30 @@ await vscode.commands.executeCommand('worklog.exportEntries', { format: 'csv' })
 await vscode.commands.executeCommand('worklog.exportSummary', { format: 'csv', days: 30 });
 ```
 
-## Packaging
+## Development
 
 ```bash
-npm run package
+npm install
+npm run compile       # compile TypeScript for development
+npm test              # run unit tests
+npm run lint          # run ESLint
+```
+
+Press `F5` to open an Extension Development Host window with Worklog loaded.
+
+## Production build
+
+`vsce package` automatically runs the `vscode:prepublish` script, which bundles
+extension JS with esbuild in production mode and then produces the `.vsix`:
+
+```bash
+npx vsce package   # bundle + build worklog-0.1.0.vsix
+```
+
+If you only want to bundle without creating the `.vsix`:
+
+```bash
+npm run vscode:prepublish
 ```
 
 ## Extension Settings
@@ -99,19 +124,6 @@ npm run package
 | Setting | Description |
 | ------- | ----------- |
 | `worklog.databasePath` | Path to the SQLite database. Empty defaults to `.vscode/worklog.db` inside the workspace. |
-
-## Troubleshooting
-
-### "There is no data provider registered that can provide view data"
-
-This means the Worklog extension failed to activate. Try:
-
-1. Reload the Extension Development Host window (`Cmd/Ctrl + R`).
-2. Check **Output → Extension Host** for errors.
-3. Make sure you built the extension before launching:
-   ```bash
-   npm run compile
-   ```
 
 ## License
 
