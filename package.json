@@ -1,7 +1,7 @@
 {
   "name": "worklog",
   "displayName": "Worklog",
-  "description": "Local-first task management and lightweight work history inside VS Code",
+  "description": "Local-first, developer-owned worklog for tracking tasks and generating AI-assisted standup notes inside VS Code",
   "version": "0.1.0",
   "publisher": "a4amresh",
   "repository": {

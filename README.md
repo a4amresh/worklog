@@ -1,7 +1,12 @@
 # Worklog
 
-A local-first VS Code extension for keeping a lightweight history of development
-work directly inside your workspace.
+A local-first VS Code extension for keeping your own lightweight history of
+development work directly inside your workspace.
+
+Worklog is **developer-owned task logging**, not a tracking or surveillance tool.
+You decide what to log, when to log it, and what to do with the data. AI coding
+assistants can help add entries and generate standup notes from your local
+worklog — but nothing is recorded automatically.
 
 ## Features
 
@@ -14,8 +19,9 @@ work directly inside your workspace.
   dates.
 - **Inline actions** — edit and delete entries from the tree view.
 - **Daily summaries** — total actual time and entry count per day.
-- **AI assistant friendly** — commands accept arguments programmatically, so
-  coding agents can add and read entries without opening UI prompts.
+- **AI assistant friendly** — commands accept arguments programmatically, so your
+  AI coding assistant can add entries and generate standup notes from your local
+  data without opening UI prompts.
 - **Export** — dump entries or daily summaries to JSON or CSV.
 
 ## Requirements
