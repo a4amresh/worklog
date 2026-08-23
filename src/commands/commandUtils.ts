@@ -29,7 +29,7 @@ export async function taskFromItem(
     return undefined;
   }
   const pick = await vscode.window.showQuickPick<TaskQuickPickItem>(
-    tasks.map(t => ({ label: t.title, description: `${t.timeMinutes} min`, task: t })),
+    tasks.map(t => ({ label: t.title, description: `${t.actualMinutes} min`, task: t })),
     { placeHolder: 'Select a worklog entry' }
   );
   return pick?.task;
@@ -52,7 +52,7 @@ export async function promptTaskFields(defaults?: Partial<import('./argParsers')
 
   const timeInput = await vscode.window.showInputBox({
     prompt: 'Time spent in minutes',
-    value: defaults?.timeMinutes?.toString() ?? '',
+    value: defaults?.actualMinutes?.toString() ?? '',
     validateInput: (value) => {
       const n = Number(value);
       return Number.isInteger(n) && n >= 0 ? undefined : 'Enter a positive whole number';
@@ -61,14 +61,27 @@ export async function promptTaskFields(defaults?: Partial<import('./argParsers')
   if (timeInput === undefined || timeInput.trim().length === 0) {
     return undefined;
   }
-  const timeMinutes = Number(timeInput);
+  const actualMinutes = Number(timeInput);
+
+  const estimatedInput = await vscode.window.showInputBox({
+    prompt: 'Estimated time in minutes (optional)',
+    value: defaults?.estimatedMinutes?.toString() ?? '',
+    validateInput: (value) => {
+      if (!value || value.trim().length === 0) {
+        return undefined;
+      }
+      const n = Number(value);
+      return Number.isInteger(n) && n >= 0 ? undefined : 'Enter a positive whole number';
+    },
+  });
+  const estimatedMinutes = estimatedInput?.trim() ? Number(estimatedInput.trim()) : 0;
 
   const tags = await vscode.window.showInputBox({
     prompt: 'Tags (optional, comma-separated)',
     value: defaults?.tags,
   }) ?? '';
 
-  return { title: title.trim(), summary: summary.trim(), timeMinutes, tags: tags.trim() };
+  return { title: title.trim(), summary: summary.trim(), actualMinutes, estimatedMinutes, tags: tags.trim() };
 }
 
 export function todaySummary(store: WorklogStore): DailySummary | undefined {

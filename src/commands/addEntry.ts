@@ -19,12 +19,13 @@ export function registerAddEntryCommand(storeReady: Promise<WorklogStoreHandle>)
   });
 }
 
-function addEntryFromArgs(handle: WorklogStoreHandle, args: { title: string; summary?: string; timeMinutes?: number; tags?: string }): Task {
+function addEntryFromArgs(handle: WorklogStoreHandle, args: { title: string; summary?: string; actualMinutes?: number; estimatedMinutes?: number; tags?: string }): Task {
   log(`worklog.addEntry invoked: ${JSON.stringify(args)}`);
   const task = handle.store.addTask(
     args.title,
     args.summary ?? '',
-    args.timeMinutes ?? 0,
+    args.actualMinutes ?? 0,
+    args.estimatedMinutes ?? 0,
     args.tags ?? ''
   );
   handle.treeProvider.refresh();

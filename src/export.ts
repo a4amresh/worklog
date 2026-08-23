@@ -29,12 +29,13 @@ function exportEntriesToJson(entries: Task[]): string {
 }
 
 function exportEntriesToCsv(entries: Task[]): string {
-  const headers = ['id', 'title', 'summary', 'timeMinutes', 'tags', 'createdAt', 'updatedAt'];
+  const headers = ['id', 'title', 'summary', 'actualMinutes', 'estimatedMinutes', 'tags', 'createdAt', 'updatedAt'];
   const rows = entries.map(t => [
     t.id,
     escapeCsv(t.title),
     escapeCsv(t.summary),
-    t.timeMinutes,
+    t.actualMinutes,
+    t.estimatedMinutes,
     escapeCsv(t.tags),
     escapeCsv(t.createdAt),
     escapeCsv(t.updatedAt),

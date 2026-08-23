@@ -2,7 +2,8 @@ export interface Task {
   id: number;
   title: string;
   summary: string;
-  timeMinutes: number;
+  actualMinutes: number;
+  estimatedMinutes: number;
   tags: string;
   createdAt: string;
   updatedAt: string;

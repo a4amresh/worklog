@@ -50,7 +50,8 @@ programmatically, so they never open prompts for AI assistants.
 const entry = await vscode.commands.executeCommand('worklog.addEntry', {
   title: 'Refactor auth service',
   summary: 'Extracted token validation into middleware',
-  timeMinutes: 45,
+  actualMinutes: 45,
+  estimatedMinutes: 30,
   tags: 'refactor,auth'
 });
 
@@ -70,7 +71,8 @@ const summary = await vscode.commands.executeCommand('worklog.getSummary', 7);
 await vscode.commands.executeCommand('worklog.editEntry', {
   id: entry.id,
   title: 'Refactor auth service and add tests',
-  timeMinutes: 60
+  actualMinutes: 60,
+  estimatedMinutes: 45
 });
 
 // Delete an entry by id

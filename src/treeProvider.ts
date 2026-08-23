@@ -48,7 +48,7 @@ class DayGroupItem extends vscode.TreeItem {
     private tasks: Task[]
   ) {
     super(formatDateLabel(date), vscode.TreeItemCollapsibleState.Collapsed);
-    this.tooltip = `${tasks.length} entries · ${tasks.reduce((sum, t) => sum + t.timeMinutes, 0)} min`;
+    this.tooltip = `${tasks.length} entries · ${tasks.reduce((sum, t) => sum + t.actualMinutes, 0)} min`;
     this.iconPath = new vscode.ThemeIcon('calendar');
   }
 }
@@ -58,8 +58,9 @@ class TaskTreeItem extends vscode.TreeItem {
     super(task.title, vscode.TreeItemCollapsibleState.None);
     this.contextValue = 'task';
     const tagPart = task.tags ? ` [${task.tags}]` : '';
-    this.description = `${task.timeMinutes} min${tagPart}`;
-    this.tooltip = `${task.title}\n${task.summary || ''}\nTime: ${task.timeMinutes} min\nCreated: ${task.createdAt}`;
+    const estimatePart = task.estimatedMinutes > 0 ? ` / est ${task.estimatedMinutes} min` : '';
+    this.description = `${task.actualMinutes} min${estimatePart}${tagPart}`;
+    this.tooltip = `${task.title}\n${task.summary || ''}\nTime: ${task.actualMinutes} min\nEstimated: ${task.estimatedMinutes} min\nCreated: ${task.createdAt}`;
     this.iconPath = new vscode.ThemeIcon('note');
   }
 }

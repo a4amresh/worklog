@@ -1,7 +1,8 @@
 export interface AddEntryArgs {
   title: string;
   summary?: string;
-  timeMinutes?: number;
+  actualMinutes?: number;
+  estimatedMinutes?: number;
   tags?: string;
 }
 
@@ -9,14 +10,16 @@ export interface EditEntryArgs {
   id: number;
   title?: string;
   summary?: string;
-  timeMinutes?: number;
+  actualMinutes?: number;
+  estimatedMinutes?: number;
   tags?: string;
 }
 
 export interface TaskFields {
   title: string;
   summary: string;
-  timeMinutes: number;
+  actualMinutes: number;
+  estimatedMinutes: number;
   tags: string;
 }
 
@@ -82,8 +85,11 @@ export function parseEditEntryArgs(args: unknown): EditEntryArgs | undefined {
   if (parsed.summary !== undefined) {
     editArgs.summary = validateString(parsed.summary, 'worklog.editEntry', 'summary');
   }
-  if (parsed.timeMinutes !== undefined) {
-    editArgs.timeMinutes = validateTimeMinutes(parsed.timeMinutes, 'worklog.editEntry');
+  if (parsed.actualMinutes !== undefined) {
+    editArgs.actualMinutes = validateTimeMinutes(parsed.actualMinutes, 'worklog.editEntry', 'actualMinutes');
+  }
+  if (parsed.estimatedMinutes !== undefined) {
+    editArgs.estimatedMinutes = validateTimeMinutes(parsed.estimatedMinutes, 'worklog.editEntry', 'estimatedMinutes');
   }
   if (parsed.tags !== undefined) {
     editArgs.tags = validateString(parsed.tags, 'worklog.editEntry', 'tags');
@@ -112,8 +118,11 @@ export function validateTaskFields(args: Partial<TaskFields>, command: string): 
   if (args.summary !== undefined && typeof args.summary !== 'string') {
     throw new Error(`${command} "summary" must be a string`);
   }
-  if (args.timeMinutes !== undefined && (!Number.isInteger(args.timeMinutes) || args.timeMinutes < 0)) {
-    throw new Error(`${command} "timeMinutes" must be a non-negative integer`);
+  if (args.actualMinutes !== undefined && (!Number.isInteger(args.actualMinutes) || args.actualMinutes < 0)) {
+    throw new Error(`${command} "actualMinutes" must be a non-negative integer`);
+  }
+  if (args.estimatedMinutes !== undefined && (!Number.isInteger(args.estimatedMinutes) || args.estimatedMinutes < 0)) {
+    throw new Error(`${command} "estimatedMinutes" must be a non-negative integer`);
   }
   if (args.tags !== undefined && typeof args.tags !== 'string') {
     throw new Error(`${command} "tags" must be a string`);
@@ -134,9 +143,9 @@ export function validateString(value: unknown, command: string, field: string): 
   return value.trim();
 }
 
-export function validateTimeMinutes(value: unknown, command: string): number {
+export function validateTimeMinutes(value: unknown, command: string, field = 'actualMinutes'): number {
   if (!Number.isInteger(value) || (value as number) < 0) {
-    throw new Error(`${command} "timeMinutes" must be a non-negative integer`);
+    throw new Error(`${command} "${field}" must be a non-negative integer`);
   }
   return value as number;
 }

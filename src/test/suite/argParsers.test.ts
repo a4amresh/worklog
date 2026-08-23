@@ -58,17 +58,22 @@ suite('Argument Parser Test Suite', () => {
 
   suite('parseAddEntryArgs', () => {
     test('parses valid add entry args', () => {
-      const result = parseAddEntryArgs({ title: 'Test', timeMinutes: 30 });
+      const result = parseAddEntryArgs({ title: 'Test', actualMinutes: 30, estimatedMinutes: 20 });
       assert.strictEqual(result.title, 'Test');
-      assert.strictEqual(result.timeMinutes, 30);
+      assert.strictEqual(result.actualMinutes, 30);
+      assert.strictEqual(result.estimatedMinutes, 20);
     });
 
     test('throws when title is missing', () => {
       assert.throws(() => parseAddEntryArgs({ summary: 'Test' }), /requires a non-empty string "title"/);
     });
 
-    test('throws when timeMinutes is negative', () => {
-      assert.throws(() => parseAddEntryArgs({ title: 'Test', timeMinutes: -1 }), /"timeMinutes" must be a non-negative integer/);
+    test('throws when actualMinutes is negative', () => {
+      assert.throws(() => parseAddEntryArgs({ title: 'Test', actualMinutes: -1 }), /"actualMinutes" must be a non-negative integer/);
+    });
+
+    test('throws when estimatedMinutes is negative', () => {
+      assert.throws(() => parseAddEntryArgs({ title: 'Test', estimatedMinutes: -1 }), /"estimatedMinutes" must be a non-negative integer/);
     });
 
     test('throws when tags is not a string', () => {
@@ -101,8 +106,12 @@ suite('Argument Parser Test Suite', () => {
       assert.throws(() => parseEditEntryArgs({ id: 1, title: '' }), /"title" must be a non-empty string/);
     });
 
-    test('throws when timeMinutes is negative', () => {
-      assert.throws(() => parseEditEntryArgs({ id: 1, timeMinutes: -5 }), /"timeMinutes" must be a non-negative integer/);
+    test('throws when actualMinutes is negative', () => {
+      assert.throws(() => parseEditEntryArgs({ id: 1, actualMinutes: -5 }), /"actualMinutes" must be a non-negative integer/);
+    });
+
+    test('throws when estimatedMinutes is negative', () => {
+      assert.throws(() => parseEditEntryArgs({ id: 1, estimatedMinutes: -5 }), /"estimatedMinutes" must be a non-negative integer/);
     });
   });
 

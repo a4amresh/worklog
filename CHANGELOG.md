@@ -12,5 +12,6 @@
 - Workspace-scoped database defaulting to `.vscode/worklog.db`.
 - Configurable database path via `worklog.databasePath` setting.
 - Programmatic commands for AI assistants (`worklog.addEntry`, `worklog.getEntries`, `worklog.getTodaySummary`, `worklog.getSummary`, `worklog.editEntry`, `worklog.deleteEntry`).
+- Optional `estimatedMinutes` field on each entry, separate from actual `actualMinutes` spent.
 - Support for JSON-string or object arguments from AI command bridges.
 - Export entries and daily summaries to JSON or CSV.

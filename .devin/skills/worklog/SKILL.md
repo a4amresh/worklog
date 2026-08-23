@@ -29,7 +29,7 @@ Call the VS Code command ID `worklog.addEntry` with a JSON argument object:
 {
   "title": "Short title of the work",
   "summary": "Optional longer description",
-  "timeMinutes": 30,
+  "actualMinutes": 30,
   "tags": "comma,separated,tags"
 }
 ```
@@ -39,7 +39,8 @@ Required fields:
 
 Optional fields:
 - `summary` (string)
-- `timeMinutes` (non-negative integer)
+- `actualMinutes` (non-negative integer) — actual time spent
+- `estimatedMinutes` (non-negative integer) — estimated/planned time
 - `tags` (string, comma-separated)
 
 Example invocation from an agent:
@@ -48,7 +49,8 @@ Example invocation from an agent:
 await vscode.commands.executeCommand('worklog.addEntry', {
   title: 'Refactor auth middleware',
   summary: 'Extracted JWT validation into reusable middleware and added tests',
-  timeMinutes: 45,
+  actualMinutes: 45,
+  estimatedMinutes: 30,
   tags: 'refactor,auth,tests'
 });
 ```
@@ -70,7 +72,7 @@ await vscode.commands.executeCommand('worklog.editEntry', {
   id: 1,
   title: 'Updated title',
   summary: 'Updated summary',
-  timeMinutes: 60,
+  actualMinutes: 60,
   tags: 'refactor,auth'
 });
 ```
@@ -96,5 +98,5 @@ If `path` is omitted, the command opens a save dialog.
 - Add entries after completing a discrete chunk of work, not before.
 - Keep titles short and specific.
 - Use tags consistently (e.g., `bugfix`, `feature`, `refactor`, `docs`, `tests`).
-- Estimate `timeMinutes` honestly; partial minutes are fine.
+- Record `actualMinutes` honestly; partial minutes are fine.
 - Do not delete entries unless they were created by mistake.

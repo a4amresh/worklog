@@ -7,8 +7,6 @@ export interface WorklogStoreOptions {
   dbPath: string;
 }
 
-const SCHEMA_VERSION = 2;
-
 export class WorklogStore {
   private SQL!: SqlJsStatic;
   private db!: Database;
@@ -26,18 +24,27 @@ export class WorklogStore {
     this.persist();
   }
 
-  addTask(title: string, summary: string, timeMinutes: number, tags: string): Task {
+  addTask(
+    title: string,
+    summary: string,
+    actualMinutes: number,
+    estimatedMinutes: number,
+    tags: string
+  ): Task {
     this.db.run(`
-      INSERT INTO tasks (title, summary, time_minutes, tags, created_at, updated_at)
-      VALUES (?, ?, ?, ?, datetime('now', 'localtime'), datetime('now', 'localtime'))
-    `, [title.trim(), summary.trim(), timeMinutes, tags.trim()]);
+      INSERT INTO tasks (title, summary, actual_minutes, estimated_minutes, tags, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, datetime('now', 'localtime'), datetime('now', 'localtime'))
+    `, [title.trim(), summary.trim(), actualMinutes, estimatedMinutes, tags.trim()]);
     const row = this.db.exec('SELECT * FROM tasks WHERE id = last_insert_rowid()')[0];
     const task = this.mapRow(row.columns, row.values[0]);
     this.persist();
     return task;
   }
 
-  updateTask(id: number, updates: Partial<Pick<Task, 'title' | 'summary' | 'timeMinutes' | 'tags'>>): Task | undefined {
+  updateTask(
+    id: number,
+    updates: Partial<Pick<Task, 'title' | 'summary' | 'actualMinutes' | 'estimatedMinutes' | 'tags'>>
+  ): Task | undefined {
     const fields: string[] = [];
     const values: (string | number)[] = [];
 
@@ -49,9 +56,13 @@ export class WorklogStore {
       fields.push('summary = ?');
       values.push(updates.summary.trim());
     }
-    if (updates.timeMinutes !== undefined) {
-      fields.push('time_minutes = ?');
-      values.push(updates.timeMinutes);
+    if (updates.actualMinutes !== undefined) {
+      fields.push('actual_minutes = ?');
+      values.push(updates.actualMinutes);
+    }
+    if (updates.estimatedMinutes !== undefined) {
+      fields.push('estimated_minutes = ?');
+      values.push(updates.estimatedMinutes);
     }
     if (updates.tags !== undefined) {
       fields.push('tags = ?');
@@ -120,7 +131,7 @@ export class WorklogStore {
     const result = this.db.exec(`
       SELECT
         date(created_at) AS date,
-        SUM(time_minutes) AS total_minutes,
+        SUM(actual_minutes) AS total_minutes,
         COUNT(*) AS entry_count
       FROM tasks
       GROUP BY date(created_at)
@@ -162,66 +173,21 @@ export class WorklogStore {
   }
 
   private migrate(): void {
-    this.ensureSchemaVersionTable();
-
-    const versionResult = this.db.exec('SELECT version FROM schema_version WHERE id = 1');
-    const currentVersion = versionResult.length > 0 && versionResult[0].values.length > 0
-      ? (versionResult[0].values[0][0] as number)
-      : 0;
-
-    if (currentVersion < SCHEMA_VERSION) {
-      this.recreateTasksTableIfNeeded();
-
-      this.db.run(`
-        CREATE TABLE IF NOT EXISTS tasks (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT NOT NULL,
-          summary TEXT,
-          time_minutes INTEGER NOT NULL CHECK(time_minutes >= 0),
-          tags TEXT,
-          created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
-          updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_tasks_created ON tasks(created_at);
-        CREATE INDEX IF NOT EXISTS idx_tasks_tags ON tasks(tags);
-      `);
-
-      this.db.run('UPDATE schema_version SET version = ? WHERE id = 1', [SCHEMA_VERSION]);
-    }
-  }
-
-  private ensureSchemaVersionTable(): void {
-    const tableInfo = this.db.exec("PRAGMA table_info(schema_version)");
-    if (tableInfo.length > 0) {
-      const columns = tableInfo[0].columns;
-      const nameIndex = columns.indexOf('name');
-      const hasIdColumn = tableInfo[0].values.some(row => row[nameIndex] === 'id');
-      if (!hasIdColumn) {
-        this.db.run('DROP TABLE schema_version');
-      }
-    }
-
     this.db.run(`
-      CREATE TABLE IF NOT EXISTS schema_version (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        version INTEGER NOT NULL DEFAULT 0
+      CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        summary TEXT,
+        actual_minutes INTEGER NOT NULL CHECK(actual_minutes >= 0),
+        estimated_minutes INTEGER NOT NULL DEFAULT 0 CHECK(estimated_minutes >= 0),
+        tags TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
       );
-      INSERT OR IGNORE INTO schema_version (id, version) VALUES (1, 0);
-    `);
-  }
 
-  private recreateTasksTableIfNeeded(): void {
-    const tableInfo = this.db.exec("PRAGMA table_info(tasks)");
-    if (tableInfo.length === 0) {
-      return;
-    }
-    const columns = tableInfo[0].columns;
-    const nameIndex = columns.indexOf('name');
-    const hasTimeMinutes = tableInfo[0].values.some(row => row[nameIndex] === 'time_minutes');
-    if (!hasTimeMinutes) {
-      this.db.run('DROP TABLE tasks');
-    }
+      CREATE INDEX IF NOT EXISTS idx_tasks_created ON tasks(created_at);
+      CREATE INDEX IF NOT EXISTS idx_tasks_tags ON tasks(tags);
+    `);
   }
 
   private mapRow(columns: string[], row: (number | string | Uint8Array | null)[]): Task {
@@ -231,7 +197,8 @@ export class WorklogStore {
       id: record.id as number,
       title: record.title as string,
       summary: record.summary as string,
-      timeMinutes: record.time_minutes as number,
+      actualMinutes: record.actual_minutes as number,
+      estimatedMinutes: record.estimated_minutes as number,
       tags: record.tags as string,
       createdAt: record.created_at as string,
       updatedAt: record.updated_at as string,

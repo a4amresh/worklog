@@ -8,7 +8,8 @@ suite('Export Test Suite', () => {
       id: 1,
       title: 'Design schema',
       summary: 'Plan DB tables',
-      timeMinutes: 60,
+      actualMinutes: 60,
+      estimatedMinutes: 30,
       tags: 'planning',
       createdAt: '2026-08-21 09:00:00',
       updatedAt: '2026-08-21 09:00:00',
@@ -17,7 +18,8 @@ suite('Export Test Suite', () => {
       id: 2,
       title: 'Refactor "auth" middleware',
       summary: 'Extracted JWT\nvalidation',
-      timeMinutes: 45,
+      actualMinutes: 45,
+      estimatedMinutes: 40,
       tags: 'refactor,auth',
       createdAt: '2026-08-21 10:00:00',
       updatedAt: '2026-08-21 10:00:00',
@@ -29,13 +31,13 @@ suite('Export Test Suite', () => {
     const parsed = JSON.parse(result);
     assert.strictEqual(parsed.length, 2);
     assert.strictEqual(parsed[0].title, 'Design schema');
-    assert.strictEqual(parsed[1].timeMinutes, 45);
+    assert.strictEqual(parsed[1].actualMinutes, 45);
   });
 
   test('exports entries to CSV', () => {
     const result = exportEntries(entries, { format: 'csv' });
     const lines = result.split('\n');
-    assert.strictEqual(lines[0], 'id,title,summary,timeMinutes,tags,createdAt,updatedAt');
+    assert.strictEqual(lines[0], 'id,title,summary,actualMinutes,estimatedMinutes,tags,createdAt,updatedAt');
     assert.ok(result.includes('Design schema'));
     assert.ok(result.includes('"Refactor ""auth"" middleware"'));
     assert.ok(result.includes('"Extracted JWT'));

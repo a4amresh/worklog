@@ -21,7 +21,8 @@ export function registerEditEntryCommand(storeReady: Promise<WorklogStoreHandle>
       const fields = await promptTaskFields({
         title: task.title,
         summary: task.summary,
-        timeMinutes: task.timeMinutes,
+        actualMinutes: task.actualMinutes,
+        estimatedMinutes: task.estimatedMinutes,
         tags: task.tags,
       });
       if (!fields) {
