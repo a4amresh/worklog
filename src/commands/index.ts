@@ -9,6 +9,7 @@ import { registerGetSummaryCommand } from './getSummary';
 import { registerRefreshCommand } from './refresh';
 import { registerExportEntriesCommand } from './exportEntries';
 import { registerExportSummaryCommand } from './exportSummary';
+import { registerCopyEntryAsMarkdownCommand } from './copyEntryAsMarkdown';
 
 export { AddEntryArgs, EditEntryArgs } from './argParsers';
 
@@ -23,5 +24,6 @@ export function registerCommands(storeReady: Promise<WorklogStoreHandle>): vscod
     registerExportEntriesCommand(storeReady),
     registerExportSummaryCommand(storeReady),
     registerRefreshCommand(storeReady),
+    registerCopyEntryAsMarkdownCommand(storeReady),
   ];
 }

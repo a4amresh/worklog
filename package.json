@@ -34,7 +34,7 @@
       {
         "command": "worklog.editEntry",
         "title": "Edit Worklog Entry",
-        "icon": "$(edit)"
+ "icon": "$(edit)"
       },
       {
         "command": "worklog.deleteEntry",
@@ -65,6 +65,10 @@
       {
         "command": "worklog.exportSummary",
         "title": "Export Worklog Summary"
+      },
+      {
+        "command": "worklog.copyEntryAsMarkdown",
+        "title": "Copy Entry as Markdown"
       }
     ],
     "views": {
@@ -97,6 +101,11 @@
         },
         {
           "command": "worklog.deleteEntry",
+          "when": "view == worklog && viewItem == task",
+          "group": "inline"
+        },
+        {
+          "command": "worklog.copyEntryAsMarkdown",
           "when": "view == worklog && viewItem == task",
           "group": "inline"
         }
